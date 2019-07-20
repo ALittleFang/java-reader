@@ -282,9 +282,9 @@ CMS(Concurrent Mark Sweep)收集器是一款具有划时代意义的收集器, �
 
 由他的英文组成可以看出，它是基于标记-清除算法实现的。整个过程分4个步骤：
 1. 初始标记(CMS initial mark):仅只标记一下GC Roots能直接关联到的对象, 速度很快
-2. 并发标记(CMS concurrent mark: GC Roots Tracing过程)
-3. 重新标记(CMS remark):修正并发标记期间因用户程序继续运行而导致标记产生变动的那一部分对象的标记记录
-4. 并发清除(CMS concurrent sweep: 已死对象将会就地释放)
+2. 并发标记(CMS concurrent mark: GC Roots Tracing过程，即可达性标记)
+3. 重新标记(CMS remark):修正并发标记期间因用户程序继续运行而导致标记产生变动的那一部分对象的标记记录，即由于并发标记时，用户线程依然进行因此在正式清理前，再做修正。
+4. 并发清除(CMS concurrent sweep: 已死对象将会就地释放)：基于标记结果，直接清理对象。
 
 可以看到，初始标记、重新标记需要STW(stop the world 即：挂起用户线程)操作。因为最耗时的操作是并发标记和并发清除。所以总体上我们认为CMS的GC与用户线程是并发运行的。
 
