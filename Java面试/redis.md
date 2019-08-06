@@ -188,6 +188,7 @@ Redis-Cluster采用无中心结构,它的特点如下：
 + 修改了redis代码，导致和官方无法同步，新特性跟进缓慢
 + Codis的集群配置中心使用zk来实现，意味着在部署上增加了zk运维的代价
 
+#### Codis和Cluster的区别
 ![Codis和Cluster的区别](https://www.linuxidc.com/upload/2019_08/1908032101337125.png)
 
 详细资料：https://www.linuxidc.com/Linux/2019-08/159783.htm
