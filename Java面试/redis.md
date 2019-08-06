@@ -101,3 +101,51 @@ dir /etc/redis
 
 缺点：
 + **兼容性差**，一旦开启了混合持久化，在4.0之前版本都不识别该aof文件，同时由于前部分是RDB格式，阅读性较差
+
+### redis的集群方式
+
+#### 主从复制
+
+##### 主从复制原理
+1. 从服务器连接主服务器，发送SYNC命令； 
+2. 主服务器接收到SYNC命名后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令； 
+3. 主服务器BGSAVE执行完后，向所有从服务器发送快照文件，并在发送期间继续记录被执行的写命令； 
+4. 从服务器收到快照文件后丢弃所有旧数据，载入收到的快照； 
+5. 主服务器快照发送完毕后开始向从服务器发送缓冲区中的写命令； 
+6. 从服务器完成对快照的载入，开始接收命令请求，并执行来自主服务器缓冲区的写命令；（从服务器初始化完成）
+7. 主服务器每执行一个写命令就会向从服务器发送相同的写命令，从服务器接收并执行收到的写命令（从服务器初始化完成后的操作）
+
+##### 主从复制优缺点
+**优点：**
++ 支持主从复制，主机会自动将数据同步到从机，可以进行读写分离
++ 为了分载Master的读操作压力，Slave服务器可以为客户端提供只读操作的服务，写服务仍然必须由Master来完成
++ Slave同样可以接受其它Slaves的连接和同步请求，这样可以有效的分载Master的同步压力。
++ Master Server是以非阻塞的方式为Slaves提供服务。所以在Master-Slave同步期间，客户端仍然可以提交查询或修改请求。
++ Slave Server同样是以非阻塞的方式完成数据同步。在同步期间，如果有客户端提交查询请求，Redis则返回同步之前的数据
+
+**缺点：**
++ Redis不具备自动容错和恢复功能，主机从机的宕机都会导致前端部分读写请求失败，需要等待机器重启或者手动切换前端的IP才能恢复。
++ 主机宕机，宕机前有部分数据未能及时同步到从机，切换IP后还会引入数据不一致的问题，降低了系统的可用性。
++ Redis较难支持在线扩容，在集群容量达到上限时在线扩容会变得很复杂
+
+#### 哨兵方案：
+![正常状态](https://img-blog.csdn.net/20180827220230340?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JpY2hhcmRseWdv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+![主机下线](https://img-blog.csdn.net/20180827220235769?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JpY2hhcmRseWdv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+![将从服务器升级为新的主服务器](https://img-blog.csdn.net/20180827220241156?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JpY2hhcmRseWdv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+##### 哨兵工作方案
++ 每个Sentinel（哨兵）进程以每秒钟一次的频率向整个集群中的Master主服务器，Slave从服务器以及其他Sentinel（哨兵）进程发送一个 PING 命令。
++ 如果一个实例（instance）距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值， 则这个实例会被 Sentinel（哨兵）进程标记为**主观下线（SDOWN）**
++ 如果一个Master主服务器被标记为主观下线（SDOWN），则正在监视这个Master主服务器的所有 Sentinel（哨兵）进程要以每秒一次的频率确认Master主服务器的确进入了主观下线状态
++ 当有足够数量的 Sentinel（哨兵）进程（大于等于配置文件指定的值）在指定的时间范围内确认Master主服务器进入了主观下线状态（SDOWN）， 则Master主服务器会被标记为**客观下线（ODOWN）**
++ 在一般情况下， 每个 Sentinel（哨兵）进程会以每 10 秒一次的频率向集群中的所有Master主服务器、Slave从服务器发送 INFO 命令。
++ 当Master主服务器被 Sentinel（哨兵）进程标记为客观下线（ODOWN）时，Sentinel（哨兵）进程向下线的 Master主服务器的所有 Slave从服务器发送 INFO 命令的频率会从 10 秒一次改为每秒一次。
++ 若没有足够数量的 Sentinel（哨兵）进程同意 Master主服务器下线， Master主服务器的**客观下线状态就会被移除**。若 Master主服务器重新向 Sentinel（哨兵）进程发送 PING 命令返回有效回复，Master主服务器的**主观下线状态就会被移除**。
+
+##### 哨兵模式的优缺点
+**优点：**
++ 哨兵模式是基于主从模式的，所有主从的优点，哨兵模式都具有。
++ 主从可以自动切换，系统更健壮，可用性更高。
+
+**缺点：**
++ Redis较难支持在线扩容，在集群容量达到上限时在线扩容会变得很复杂。
