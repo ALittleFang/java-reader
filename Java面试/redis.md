@@ -192,3 +192,7 @@ Redis-Cluster采用无中心结构,它的特点如下：
 ![Codis和Cluster的区别](https://www.linuxidc.com/upload/2019_08/1908032101337125.png)
 
 详细资料：https://www.linuxidc.com/Linux/2019-08/159783.htm
+
+### redis线程模型
+![redis线程模型](https://images2018.cnblogs.com/blog/1169376/201805/1169376-20180530155238751-909072669.png)
+redis-client在操作的时候，会产生具有不同事件类型的socket。在服务端，有一段I/0多路复用程序，将其置入队列之中。然后，文件事件分派器，依次去队列中取，转发到不同的事件处理器中。
