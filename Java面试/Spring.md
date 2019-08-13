@@ -24,4 +24,4 @@ ResourceLoader 接口是资源查找定位策略的统一抽象，具体的资�
 继承自 DefaultResourceLoader ，但覆写了 getResourceByPath(String) 方法，使之从文件系统加载资源并以FileSystemResource 类型返回。
 
 ##### ResourcePatternResolver ——批量查找的 ResourceLoader
-ResourcePatternResolver 是 ResourceLoader 的扩展， 其可以根据指定的资源路径匹配模式，每次返回多个 Resource 实例。同时还引入了一种新的协议前缀 **classpath*:** 
+ResourcePatternResolver 是 ResourceLoader 的扩展， 其可以根据指定的资源路径匹配模式，每次返回多个 Resource 实例。同时还引入了一种新的协议前缀 classpath*:
