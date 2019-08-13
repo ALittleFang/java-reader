@@ -1,14 +1,16 @@
 ##  ApplicationContext 与 ResourceLoader
+![](https://github.com/ALittleFang/java-reader/blob/master/Java面试/AbstractApplicationContext.png)
+ ApplicationContext 继承了 ResourcePatternResolver ，当然就间接实现了 ResourceLoader 接口。所以，任何的 ApplicationContext 实现都可以看作是一个ResourceLoader 甚至 ResourcePatternResolver 。而这就是 ApplicationContext 支持Spring内统一资源加载策略的真相。
 
 ### ResourceLoader（统一资源定位器）
-
+![](https://github.com/ALittleFang/java-reader/blob/master/Java面试/resourceLoader.png)
 ResourceLoader 接口是资源查找定位策略的统一抽象，具体的资源查找定位策略则由相应的 ResourceLoader 实现类给出。
 
 #### 资源地址表达式
-+ **classpath:**前缀开头，如classpath:xxx.xml
-+ **/**开头，如/WEB_INF/xxx.xml
-+ **非/**开头，如WEB_INF/xxx.xml
-+ url协议，如file:/D:/xxx.xml
++ classpath:前缀开头，如classpath:xxx.xml
++ /开头，如/WEB_INF/xxx.xml
++ 非/开头，如WEB_INF/xxx.xml
++ **url协议**，如file:/D:/xxx.xml
 
 #### ResourceLoader实现类
 ##### DefaultResourceLoader（默认实现类）
