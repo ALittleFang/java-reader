@@ -171,6 +171,36 @@ public StringBuilder append(String str) {
 2. 对于随机访问get和set，ArrayList觉得优于LinkedList，因为LinkedList要移动指针。 
 3. 对于新增和删除操作add和remove，LinedList比较占优势，因为ArrayList要移动数据。 
 
+### ArrayList扩容
+```
+/**
+     * 要分配的最大数组大小
+     */
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
+    /**
+     * ArrayList扩容的核心方法。
+     */
+    private void grow(int minCapacity) {
+        // oldCapacity为旧容量，newCapacity为新容量
+        int oldCapacity = elementData.length;
+        //将oldCapacity 右移一位，其效果相当于oldCapacity /2，
+        //我们知道位运算的速度远远快于整除运算，整句运算式的结果就是将新容量更新为旧容量的1.5倍，
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        //然后检查新容量是否大于最小需要容量，若还是小于最小需要容量，那么就把最小需要容量当作数组的新容量，
+        if (newCapacity - minCapacity < 0)
+            newCapacity = minCapacity;
+       // 如果新容量大于 MAX_ARRAY_SIZE,进入(执行) `hugeCapacity()` 方法来比较 minCapacity 和 MAX_ARRAY_SIZE，
+       //如果minCapacity大于最大容量，则新容量则为`Integer.MAX_VALUE`，否则，新容量大小则为 MAX_ARRAY_SIZE 即为 `Integer.MAX_VALUE - 8`。
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        // minCapacity is usually close to size, so this is a win:
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+```
+1. 首先设置新容量为旧容量的1.5倍 
+2. 如果新容量还是小于最小需要容量，那么就把最小需要容量当作数组的新容量
+3. 如果新容量大于最大容量，则将新容量设为最小需要容量和最大容量之间的较小值
 
 ### 9. ConcurrentModificationException异常出现的原因
 
