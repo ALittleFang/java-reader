@@ -25,3 +25,10 @@ ResourceLoader 接口是资源查找定位策略的统一抽象，具体的资�
 
 ##### ResourcePatternResolver ——批量查找的 ResourceLoader
 ResourcePatternResolver 是 ResourceLoader 的扩展， 其可以根据指定的资源路径匹配模式，每次返回多个 Resource 实例。同时还引入了一种新的协议前缀 classpath*:
+
+## BeanFactory和FactoryBean的区别
++ **BeanFactory是IOC最基本的容器，负责生产和管理bean，它为其他具体的IOC容器提供了最基本的规范**，例如DefaultListableBeanFactory。XmlBeanFactory,ApplicationContext 等具体的容器都是实现了BeanFactory，再在其基础之上附加了其他的功能。
++ **FactoryBean是个工厂Bean，属于Spring Bean的一种，是一种特殊的Bean**。通过getBean(String BeanName)获取到的Bean对象并不是FactoryBean的实现类对象，而是这个实现类中的getObject()方法返回的对象。要想获取FactoryBean的实现类，就要getBean(&BeanName)，在BeanName之前加上&。
+
+### FactoryBean的作用
+FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。
