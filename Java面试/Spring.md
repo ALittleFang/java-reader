@@ -32,3 +32,6 @@ ResourcePatternResolver 是 ResourceLoader 的扩展， 其可以根据指定的
 
 ### FactoryBean的作用
 FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。
+
+## 基于注解的形式，是怎么实现的
+@Configuration、@Controller、@Service这些注解其实都是@Component的派生注解，我们看这些注解的代码会发现，都有@Component注解修饰。而spring通过metadata.hasMetaAnnotation()方法获取到这些注解包含@Component，所以都可以扫描到
