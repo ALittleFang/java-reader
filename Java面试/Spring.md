@@ -33,5 +33,26 @@ ResourcePatternResolver 是 ResourceLoader 的扩展， 其可以根据指定的
 ### FactoryBean的作用
 FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。
 
-## 基于注解的形式，是怎么实现的
+## 基于注解的形式，是怎么实现的（答案暂定）
 @Configuration、@Controller、@Service这些注解其实都是@Component的派生注解，我们看这些注解的代码会发现，都有@Component注解修饰。而spring通过metadata.hasMetaAnnotation()方法获取到这些注解包含@Component，所以都可以扫描到
+# SpringMVC
+
+### SpringleMVC的运行机制
+
+
+## StringMVC与Struts2的区别
+**Struts2是类级别的拦截，每次请求就会创建一个Action**，和Spring整合时Struts2的ActionBean注入作用域是原型模式prototype，然后通过setter，getter吧request数据注入到属性。Struts2中，一个Action对应一个request，response上下文，在接收参数时，可以通过属性接收，这说明属性参数是让多个方法共享的。Struts2中Action的一个方法可以对应一个url，而其类属性却被所有方法共享，这也就无法用注解或其他方式标识其所属方法了，只能设计为多例。
+
+　　**SpringMVC是方法级别的拦截，一个方法对应一个Request上下文**，所以方法直接基本上是独立的，独享request，response数据。而每个方法同时又何一个url对应，参数的传递是直接注入到方法中的，是方法所独有的。处理结果通过ModeMap返回给框架。在Spring整合时，SpringMVC的Controller Bean默认单例模式Singleton，所以默认对所有的请求，只会创建一个Controller，有应为没有共享的属性，所以是线程安全的，如果要改变默认的作用域，需要添加@Scope注解修改。
+
+　　**Struts2有自己的拦截Interceptor机制，SpringMVC这是用的是独立的Aop方式**，这样导致Struts2的配置文件量还是比SpringMVC大。
+
+**Struts2采用Filter实现，SpringMVC则采用Servlet实现**。Filter在容器启动之后即初始化；服务停止以后坠毁，晚于Servlet。Servlet在是在调用时初始化，先于Filter调用，服务停止后销毁。
+使用注解的话，SpringMVC基本上是零配置，而Struts需要配置很多。
+
+## dispatchServlet的工作原理
+1. DispatcherServlet继承FrameworkServlet，当客户端发送请求的时候， 会调用Servlet对应的doGet、doPost、doDelete等方法。　　
+2. doGet、doPost、doDelete里面会调用processRequest方法
+3. processRequest方法进一步调用doService方法
+4. DispatcherServlet实现了doService方法，在doService方法中对Request参数进行处理，然后调用doDispatch方法
+5. 在doDispatch方法中获取并调用处理器映射器、处理器适配器，获取并返回执行结果。doDispatch() 方法的主要过程是通过 HandlerMapping 获取 Handler，再找到用于执行它的 HandlerAdapter，执行 Handler 后得到 ModelAndView ，ModelAndView 是连接“业务逻辑层”与“视图展示层”的桥梁，接下来就要通过 ModelAndView 获得 View，再通过它的 Model 对 View 进行渲染
